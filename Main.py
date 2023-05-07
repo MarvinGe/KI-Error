@@ -24,7 +24,7 @@ tfd = tfp.distributions
 def training(unused_argv):
   
   #^^ Get Data
-  DATASETS = 20000
+  DATASETS = 30000
   np.random.seed(42)
   data = np.random.rand(DATASETS, 66)
   df = pd.DataFrame(data, columns=[f"col_{i}" for i in range(66)])
@@ -36,7 +36,7 @@ def training(unused_argv):
   # ^^ Parameter
   # * General parameter 
   MODEL_NAME = "TestModel"
-  AGENT = "LinTS" # Can also be Greedy
+  AGENT = "Greedy" #"LinTS" # Can also be "Greedy"
   
   # * Environment parameter
   BATCH_SIZE = 10
@@ -49,10 +49,9 @@ def training(unused_argv):
   
   # * Trainer parameter
   ROOT_DIR = 'C:\\Users\\marvi\\Desktop\\Testdir\\' #"C:\\" #Add your Root_dir 
-  TRAINING_LOOPS = 5000
+  TRAINING_LOOPS = 20000
   STEPS_PER_LOOP = 2
   
-  tf.compat.v1.enable_v2_behavior()  #For Trainer.train
   with tf.device('/CPU:0'):
     
     # ^^ Training Dataset
