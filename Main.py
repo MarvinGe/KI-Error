@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import os
 import functools
 
@@ -23,7 +19,7 @@ tfd = tfp.distributions
 
 def training(unused_argv):
   
-  #^^ Get Data
+  # * Get Data
   DATASETS = 30000
   np.random.seed(42)
   data = np.random.rand(DATASETS, 66)
@@ -33,48 +29,38 @@ def training(unused_argv):
   data = np.random.randint(low=1, high=201, size=DATASETS)
   df_Training_LABEL = pd.DataFrame(data, columns=['column_name'])
   
-  # ^^ Parameter
-  # * General parameter 
+  # * Parameter
   MODEL_NAME = "TestModel"
-  AGENT = "Greedy" #"LinTS" # Can also be "Greedy"
-  
-  # * Environment parameter
+  AGENT = "Greedy" # Can also be "LinTS"
   BATCH_SIZE = 10
-  
-  # * Agent parameter
   LAYERS = (300, 200, 100, 100, 50, 50)
   EPSILON = 0.01
   LR = 0.002
   AGENT_ALPHA = 10
-  
-  # * Trainer parameter
-  ROOT_DIR = 'C:\\Users\\marvi\\Desktop\\Testdir\\' #"C:\\" #Add your Root_dir 
+  ROOT_DIR = 'C://' # ! Add your Root_dir 
   TRAINING_LOOPS = 20000
   STEPS_PER_LOOP = 2
   
   with tf.device('/CPU:0'):
     
-    # ^^ Training Dataset
-    # * For Environment
+    # * Training Dataset
     CONTEXT_TENSOR = tf.cast(df_TRAINING_DATA, tf.float32)
     LABEL_TENSOR = tf.cast(df_Training_LABEL, tf.int32)
     TRAINING_DATASET =  tf.data.Dataset.from_tensor_slices((CONTEXT_TENSOR, LABEL_TENSOR))
     
-    # ^^ Reward Distribution
-    # * For Environment
+    # * Reward Distribution
     reward_distribution = tfd.Independent(
       tfd.Deterministic(tf.eye(200)), 
       reinterpreted_batch_ndims=2) 
     
-    # ^^ Environment
-    # * For Network/Agent
+    # * Environment
     environment = class_env.ClassificationBanditEnvironment(
       dataset = TRAINING_DATASET, 
       reward_distribution = reward_distribution, 
       batch_size = BATCH_SIZE, 
       prefetch_size=len(TRAINING_DATASET))
     
-    # ^^ Network/Agent
+    # * Network/Agent
     match AGENT: 
       case 'Greedy':
         network = q_net.QNetwork(
@@ -94,13 +80,13 @@ def training(unused_argv):
           alpha=AGENT_ALPHA,
           dtype=tf.float32)
     
-    # ^^ Metric (Trainer)   
+    # * Metric (Trainer)   
     optimal_reward_fn = functools.partial(env_util.compute_optimal_reward_with_classification_environment,environment=environment) 
     regret_metric = tf_metrics.RegretMetric(optimal_reward_fn)
     optimal_action_fn = functools.partial(env_util.compute_optimal_action_with_classification_environment,environment=environment) 
     suboptimal_arms_metric = tf_metrics.SuboptimalArmsMetric(optimal_action_fn)
     
-    # ^^ Trainer
+    # * Trainer
     tr.train(
       root_dir=os.path.join(ROOT_DIR,MODEL_NAME),
       agent=agent,
